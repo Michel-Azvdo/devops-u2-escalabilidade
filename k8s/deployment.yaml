@@ -1,1 +1,43 @@
-
+# Deployment: define COMO a aplicação roda no cluster
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-u2
+  labels:
+    app: flask-u2
+spec:
+  # Alta disponibilidade: 3 cópias (réplicas) do pod rodando ao mesmo tempo
+  replicas: 3
+  # O Deployment gerencia os pods que tiverem este label
+  selector:
+    matchLabels:
+      app: flask-u2
+  # Modelo dos pods que serão criados
+  template:
+    metadata:
+      labels:
+        app: flask-u2
+    spec:
+      # Sempre reinicia o container se ele cair
+      restartPolicy: Always
+      containers:
+        - name: flask-u2
+          image: michelazevedo/flask-u2:v1
+          ports:
+            - containerPort: 5000
+          # Readiness: o pod só recebe tráfego quando responde OK.
+          # Se falhar, o pod é ISOLADO do balanceamento (não é reiniciado).
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          # Liveness: verifica se o app está vivo.
+          # Se falhar várias vezes seguidas, o Kubernetes REINICIA o container.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
