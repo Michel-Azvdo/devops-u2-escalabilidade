@@ -1,0 +1,17 @@
+# Service: ponto de entrada estável que balanceia o tráfego entre os pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-u2-svc
+  labels:
+    app: flask-u2
+spec:
+  type: ClusterIP
+  # Envia tráfego para pods com este label (somente os que estão READY)
+  selector:
+    app: flask-u2
+  ports:
+    - name: http
+      port: 80          # porta do Service
+      targetPort: 5000  # porta do container
+      
