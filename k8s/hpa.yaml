@@ -1,0 +1,28 @@
+# HPA: ajusta automaticamente o número de réplicas conforme o uso de CPU
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flask-u2-hpa
+spec:
+  # Qual workload será escalado
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: flask-u2
+  # Limites de réplicas
+  minReplicas: 2
+  maxReplicas: 5
+  # Métrica: média de uso de CPU em relação ao "requests" (100m).
+  # 50% = escala quando a média passar de ~50m por pod.
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+  # Reduz a espera antes de diminuir réplicas (padrão: 300s),
+  # para o encolhimento aparecer no tempo da atividade.
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60

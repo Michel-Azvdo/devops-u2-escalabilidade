@@ -25,11 +25,18 @@ spec:
           image: michelazevedo/flask-u2:v1
           ports:
             - containerPort: 5000
+          # Resources: o HPA calcula o % de CPU em cima do "requests".
+          # requests = reserva mínima garantida; limits = teto de consumo.
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "250m"
           # Readiness: o pod só recebe tráfego quando responde OK.
           # Se falhar, o pod é ISOLADO do balanceamento (não é reiniciado).
           readinessProbe:
             httpGet:
-              path: /health  
+              path: /health
               port: 5000
             initialDelaySeconds: 5
             periodSeconds: 5
