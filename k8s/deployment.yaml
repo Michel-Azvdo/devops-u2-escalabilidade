@@ -17,6 +17,11 @@ spec:
     metadata:
       labels:
         app: flask-u2
+       # Convenção usada pelo Prometheus para descobrir quem deve ser monitorado
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics" 
     spec:
       # Sempre reinicia o container se ele cair
       restartPolicy: Always
